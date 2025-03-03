@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Analysis Tool</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <style>
+        .container { max-width: 800px; margin: 20px auto; }
+        .hidden { display: none; }
+        #preview { max-width: 100%; }
+        #results { margin-top: 20px; padding: 15px; background: #f0f0f0; }
+        .camera-btn { margin: 10px; padding: 10px 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Analysis</h1>
+        
+        <button class="camera-btn" onclick="startCamera()">Take Photo</button>
+        <input type="file" id="fileInput" accept="image/*" class="hidden">
+        <button class="camera-btn" onclick="document.getElementById('fileInput').click()">Choose from Gallery</button>
+
+        <div id="imageSection" class="hidden">
+            <img id="preview">
+            <button onclick="processImage()" class="camera-btn">Process Image</button>
+        </div>
+
+        <div id="results" class="hidden">
+            <h3>Analysis Results:</h3>
+            <p>Average RGB: <span id="rgbResult"></span></p>
+            <p>Grayscale: <span id="grayscaleResult"></span></p>
+            <input type="number" id="concentration" placeholder="Enter concentration">
+            <button onclick="saveData()">Save Data</button>
+        </div>
+
+        <div id="savedData"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        let cropper;
+        let currentImageData;
+
+        // Camera access
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.createElement('video');
+                document.body.append(video);
+                video.srcObject = stream;
+                video.play();
+                
+                video.addEventListener('click', async () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    stream.getTracks().forEach(track => track.stop());
+                    video.remove();
+                    initCropper(canvas.toDataURL());
+                });
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+            }
+        }
+
+        // File input handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if (e.target.files.length) {
+                const reader = new FileReader();
+                reader.onload = event => initCropper(event.target.result);
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Initialize cropper
+        function initCropper(imageSrc) {
+            document.getElementById('imageSection').classList.remove('hidden');
+            const image = document.getElementById('preview');
+            image.src = imageSrc;
+            
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8
+            });
+        }
+
+        // Process image data
+        function processImage() {
+            const canvas = cropper.getCroppedCanvas();
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            let r = 0, g = 0, b = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                r += data[i];
+                g += data[i + 1];
+                b += data[i + 2];
+            }
+
+            const totalPixels = data.length / 4;
+            currentImageData = {
+                avgR: Math.round(r / totalPixels),
+                avgG: Math.round(g / totalPixels),
+                avgB: Math.round(b / totalPixels),
+                grayscale: Math.round((r + g + b) / (3 * totalPixels))
+            };
+
+            document.getElementById('rgbResult').textContent = 
+                `${currentImageData.avgR}, ${currentImageData.avgG}, ${currentImageData.avgB}`;
+            document.getElementById('grayscaleResult').textContent = currentImageData.grayscale;
+            document.getElementById('results').classList.remove('hidden');
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            const concentration = document.getElementById('concentration').value;
+            if (!concentration) return alert('Please enter concentration value');
+            
+            const entry = {
+                ...currentImageData,
+                concentration: parseFloat(concentration),
+                timestamp: new Date().toISOString()
+            };
+
+            const savedData = JSON.parse(localStorage.getItem('imageAnalysis') || '[]');
+            savedData.push(entry);
+            localStorage.setItem('imageAnalysis', JSON.stringify(savedData));
+            
+            displaySavedData();
+            alert('Data saved successfully!');
+        }
+
+        // Display saved data
+        function displaySavedData() {
+            const savedData = JSON.parse(localStorage.getItem('imageAnalysis') || '[]');
+            const html = savedData.map(entry => `
+                <div class="entry">
+                    <p>Date: ${new Date(entry.timestamp).toLocaleString()}</p>
+                    <p>RGB: ${entry.avgR}, ${entry.avgG}, ${entry.avgB}</p>
+                    <p>Grayscale: ${entry.grayscale}</p>
+                    <p>Concentration: ${entry.concentration}</p>
+                    <hr>
+                </div>
+            `).join('');
+            document.getElementById('savedData').innerHTML = html;
+        }
+
+        // Initial display of saved data
+        displaySavedData();
+    </script>
+</body>
+</html>
