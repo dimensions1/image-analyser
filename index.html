@@ -41,6 +41,39 @@
             background: white;
             margin-top: 20px;
         }
+        .modal-dialog {
+            max-width: 100%;
+            height: 100vh;
+            margin: 0;
+        }
+        .modal-content {
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+        }
+        #croppingModal .img-container {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #croppingImage {
+            max-width: 100%;
+            max-height: 80vh;
+        }
+        .modal-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            justify-content: center;
+        }
+        .btn-modal {
+            margin: 0 10px;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -67,7 +100,6 @@
                         <div class="mb-3">
                             <img id="preview" class="img-fluid">
                         </div>
-                        <button class="btn btn-custom w-100" onclick="cropImage()">Crop Image</button>
                     </div>
 
                     <!-- Data Input -->
@@ -98,6 +130,21 @@
         </div>
     </div>
 
+    <!-- Cropping Modal -->
+    <div class="modal fade" id="croppingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="img-container">
+                    <img id="croppingImage">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-modal" onclick="performCrop()">Crop</button>
+                    <button type="button" class="btn btn-secondary btn-modal" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script>
@@ -114,25 +161,53 @@
 
             const reader = new FileReader();
             reader.onload = (event) => {
-                document.getElementById('imageSection').classList.remove('d-none');
-                const image = document.getElementById('preview');
+                const modal = new bootstrap.Modal(document.getElementById('croppingModal'));
+                const image = document.getElementById('croppingImage');
                 image.src = event.target.result;
                 
                 if (cropper) cropper.destroy();
-                cropper = new Cropper(image, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    autoCropArea: 0.8
-                });
+                
+                modal.show();
+                
+                // Initialize cropper after modal is shown
+                setTimeout(() => {
+                    cropper = new Cropper(image, {
+                        aspectRatio: 1,
+                        viewMode: 0,
+                        autoCropArea: 0.8,
+                        guides: false,
+                        center: false,
+                        background: false,
+                        movable: true,
+                        rotatable: false,
+                        scalable: false,
+                        zoomable: true,
+                        zoomOnTouch: true,
+                        zoomOnWheel: true,
+                        wheelZoomRatio: 0.1,
+                        ready() {
+                            cropper.setCropBoxData({
+                                width: Math.min(image.naturalWidth, image.naturalHeight),
+                                height: Math.min(image.naturalWidth, image.naturalHeight)
+                            });
+                        }
+                    });
+                }, 200);
             };
             reader.readAsDataURL(file);
         }
 
-        function cropImage() {
+        function performCrop() {
             const canvas = cropper.getCroppedCanvas();
             currentImage = canvas.toDataURL('image/jpeg');
-            document.getElementById('imageSection').classList.add('d-none');
+            document.getElementById('preview').src = currentImage;
+            
+            // Hide modal and destroy cropper
+            bootstrap.Modal.getInstance(document.getElementById('croppingModal')).hide();
+            cropper.destroy();
+            
             processImage(canvas);
+            document.getElementById('imageSection').classList.remove('d-none');
         }
 
         function processImage(canvas) {
