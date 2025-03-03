@@ -1,456 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Image Analysis Tool</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-      :root {
-        --primary: #4a90e2;
-        --secondary: #6c5ce7;
-        --background: #f8f9fa;
-        --text: #2d3436;
-        --success: #00b894;
-      }
-
-      * {
-        box-sizing: border-box;
-        font-family: "Poppins", sans-serif;
-      }
-
-      body {
-        margin: 0;
-        padding: 20px;
-        background: var(--background);
-        color: var(--text);
-      }
-
-      .container {
-        max-width: 1000px;
-        margin: 0 auto;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        padding: 30px;
-      }
-
-      h1 {
-        text-align: center;
-        color: var(--primary);
-        margin-bottom: 30px;
-        font-weight: 600;
-      }
-
-      .button-group {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin-bottom: 30px;
-      }
-
-      .btn {
-        padding: 12px 25px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .btn-primary {
-        background: var(--primary);
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #357abd;
-        transform: translateY(-2px);
-      }
-
-      .btn-secondary {
-        background: var(--secondary);
-        color: white;
-      }
-
-      .btn-secondary:hover {
-        background: #5a4bc2;
-        transform: translateY(-2px);
-      }
-
-      #imageSection {
-        margin: 25px 0;
-        text-align: center;
-      }
-
-      #preview {
-        max-width: 100%;
-        border-radius: 10px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-      }
-
-      .analysis-card {
-        background: white;
-        border-radius: 10px;
-        padding: 20px;
-        margin: 25px 0;
-        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .form-group {
-        margin: 20px 0;
-      }
-
-      input[type="number"] {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        font-size: 16px;
-        transition: border-color 0.3s ease;
-      }
-
-      input[type="number"]:focus {
-        outline: none;
-        border-color: var(--primary);
-      }
-
-      .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 30px;
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .data-table th,
-      .data-table td {
-        padding: 15px;
-        text-align: left;
-      }
-
-      .data-table thead {
-        background: var(--primary);
-        color: white;
-      }
-
-      .data-table tbody tr:nth-child(even) {
-        background: #f8f9fa;
-      }
-
-      .data-table tbody tr:hover {
-        background: #e3f2fd;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      .notification {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: var(--success);
-        color: white;
-        padding: 15px 25px;
-        border-radius: 8px;
-        animation: slideIn 0.3s ease;
-      }
-
-      @keyframes slideIn {
-        from {
-          transform: translateX(100%);
+        :root {
+            --primary: #4a90e2;
+            --secondary: #6c5ce7;
+            --background: #f8f9fa;
+            --text: #2d3436;
+            --success: #00b894;
         }
-        to {
-          transform: translateX(0);
-        }
-      }
 
-      @media (max-width: 768px) {
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 15px;
+            background: var(--background);
+            color: var(--text);
+        }
+
         .container {
-          padding: 20px;
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            font-size: 22px;
+            margin-bottom: 20px;
         }
 
         .button-group {
-          flex-direction: column;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
         }
 
         .btn {
-          justify-content: center;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-      }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #357abd;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a4bc2;
+        }
+
+        #imageSection {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .analysis-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+        }
+
+        .hidden { display: none; }
+
+        .notification {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <h1><i class="fas fa-camera-retro"></i> Image Analysis Tool</h1>
-
-      <div class="button-group">
-        <button class="btn btn-primary" onclick="startCamera()">
-          <i class="fas fa-camera"></i> Take Photo
-        </button>
-        <input type="file" id="fileInput" accept="image/*" class="hidden" />
-        <button
-          class="btn btn-secondary"
-          onclick="document.getElementById('fileInput').click()"
-        >
-          <i class="fas fa-folder-open"></i> Choose from Gallery
-        </button>
-      </div>
-
-      <div id="imageSection" class="hidden">
-        <img id="preview" />
-        <button
-          class="btn btn-primary"
-          onclick="processImage()"
-          style="margin-top: 20px"
-        >
-          <i class="fas fa-magic"></i> Process Image
-        </button>
-      </div>
-
-      <div id="results" class="hidden">
-        <div class="analysis-card">
-          <h3><i class="fas fa-chart-bar"></i> Analysis Results</h3>
-          <div class="form-group">
-            <p>
-              <strong>Average RGB:</strong>
-              <span id="rgbResult" class="result-value"></span>
-            </p>
-            <p>
-              <strong>Grayscale Value:</strong>
-              <span id="grayscaleResult" class="result-value"></span>
-            </p>
-          </div>
-          <div class="form-group">
-            <input
-              type="number"
-              id="concentration"
-              placeholder="Enter concentration value"
-              step="0.01"
-            />
-          </div>
-          <button
-            class="btn btn-success"
-            onclick="saveData()"
-            style="width: 100%"
-          >
-            <i class="fas fa-save"></i> Save Data
-          </button>
+        <h1><i class="fas fa-camera-retro"></i> Image Analysis Tool</h1>
+        
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="startCamera()">
+                <i class="fas fa-camera"></i> Take Photo
+            </button>
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-folder-open"></i> Choose Image
+            </button>
         </div>
-      </div>
 
-      <table class="data-table" id="dataTable" class="hidden">
-        <thead>
-          <tr>
-            <th><i class="fas fa-calendar-alt"></i> Date</th>
-            <th><i class="fas fa-palette"></i> Grayscale</th>
-            <th><i class="fas fa-flask"></i> Concentration</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+        <div id="imageSection" class="hidden">
+            <img id="preview">
+            <button class="btn btn-primary" onclick="processImage()" style="margin-top: 15px;">
+                <i class="fas fa-magic"></i> Process Image
+            </button>
+        </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <script>
-      let cropper;
-      let currentImageData;
+        <div id="results" class="hidden">
+            <div class="analysis-card">
+                <p><strong>Grayscale Value:</strong> <span id="grayscaleResult"></span></p>
+                <input type="number" id="concentration" placeholder="Enter concentration">
+                <button class="btn btn-success" onclick="saveData()" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-save"></i> Save Data
+                </button>
+            </div>
+        </div>
 
-      async function startCamera() {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-          const video = document.createElement("video");
-          document.body.append(video);
-          video.srcObject = stream;
-          video.play();
-
-          video.addEventListener("click", async () => {
-            const canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext("2d").drawImage(video, 0, 0);
-            stream.getTracks().forEach((track) => track.stop());
-            video.remove();
-            initCropper(canvas.toDataURL());
-          });
-        } catch (err) {
-          showNotification("Error accessing camera: " + err.message, "error");
-        }
-      }
-
-      document
-        .getElementById("fileInput")
-        .addEventListener("change", function (e) {
-          const file = e.target.files[0];
-          if (!file) return;
-
-          if (!file.type.startsWith("image/")) {
-            showNotification("Please select an image file", "error");
-            return;
-          }
-
-          const reader = new FileReader();
-
-          reader.onload = (event) => {
-            initCropper(event.target.result);
-          };
-
-          reader.onerror = (error) => {
-            showNotification("Error reading file. Please try again.", "error");
-          };
-
-          try {
-            reader.readAsDataURL(file);
-          } catch (error) {
-            showNotification(
-              "Unsupported file format. Please use JPG, PNG, or WEBP.",
-              "error"
-            );
-          }
-        });
-
-      function initCropper(imageSrc) {
-        const imageSection = document.getElementById("imageSection");
-        const image = document.getElementById("preview");
-
-        imageSection.classList.remove("hidden");
-        image.src = "";
-
-        image.onload = () => {
-          if (cropper) cropper.destroy();
-
-          cropper = new Cropper(image, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 0.8,
-            ready() {
-              this.cropper.setCropBoxData({
-                width: Math.min(500, this.cropper.getContainerData().width),
-                height: Math.min(500, this.cropper.getContainerData().height),
-              });
-            },
-          });
-        };
-
-        image.onerror = () => {
-          showNotification(
-            "Failed to load image. Please try another file.",
-            "error"
-          );
-          imageSection.classList.add("hidden");
-        };
-
-        image.src = imageSrc;
-      }
-
-      function processImage() {
-        const canvas = cropper.getCroppedCanvas();
-        const ctx = canvas.getContext("2d");
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-
-        let r = 0,
-          g = 0,
-          b = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i];
-          g += data[i + 1];
-          b += data[i + 2];
-        }
-
-        const totalPixels = data.length / 4;
-        currentImageData = {
-          grayscale: Math.round((r + g + b) / (3 * totalPixels)),
-          avgR: Math.round(r / totalPixels),
-          avgG: Math.round(g / totalPixels),
-          avgB: Math.round(b / totalPixels),
-        };
-
-        document.getElementById(
-          "rgbResult"
-        ).textContent = `${currentImageData.avgR}, ${currentImageData.avgG}, ${currentImageData.avgB}`;
-        document.getElementById("grayscaleResult").textContent =
-          currentImageData.grayscale;
-        document.getElementById("results").classList.remove("hidden");
-        showNotification("Image processed successfully!", "success");
-      }
-
-      function saveData() {
-        const concentration = document.getElementById("concentration").value;
-        if (!concentration) {
-          showNotification("Please enter concentration value", "warning");
-          return;
-        }
-
-        const entry = {
-          grayscale: currentImageData.grayscale,
-          concentration: parseFloat(concentration),
-          timestamp: new Date().toISOString(),
-        };
-
-        const savedData = JSON.parse(
-          localStorage.getItem("imageAnalysis") || "[]"
-        );
-        savedData.push(entry);
-        localStorage.setItem("imageAnalysis", JSON.stringify(savedData));
-
-        displaySavedData();
-        showNotification("Data saved successfully!", "success");
-      }
-
-      function displaySavedData() {
-        const savedData = JSON.parse(
-          localStorage.getItem("imageAnalysis") || "[]"
-        );
-        const tbody = document.querySelector("#dataTable tbody");
-        tbody.innerHTML = savedData
-          .map(
-            (entry) => `
+        <table id="dataTable" class="hidden">
+            <thead>
                 <tr>
-                    <td>${new Date(entry.timestamp).toLocaleString()}</td>
-                    <td>${entry.grayscale}</td>
-                    <td>${entry.concentration}</td>
+                    <th>Date</th>
+                    <th>Grayscale</th>
+                    <th>Concentration</th>
                 </tr>
-            `
-          )
-          .join("");
-        document
-          .getElementById("dataTable")
-          .classList.toggle("hidden", savedData.length === 0);
-      }
-
-      function showNotification(message, type = "info") {
-        const notification = document.createElement("div");
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-          notification.remove();
-        }, 3000);
-      }
-
-      // Initial data display
-      displaySavedData();
-    </script>
-  </body>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</body>
 </html>
