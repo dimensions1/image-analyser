@@ -4,8 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Image Analysis Tool</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
+    rel="stylesheet"
+  />
   <style>
     body {
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -208,6 +214,7 @@
             zoomOnWheel: true,
             wheelZoomRatio: 0.1,
             ready() {
+              // Clear any preset crop box so the user can start fresh
               cropper.clear();
             }
           });
@@ -216,15 +223,12 @@
       reader.readAsDataURL(file);
     }
 
-    // Modified performCrop: disable image smoothing
     function performCrop() {
-      const canvas = cropper.getCroppedCanvas({
-        imageSmoothingEnabled: false,
-        imageSmoothingQuality: 'high'
-      });
+      const canvas = cropper.getCroppedCanvas();
       currentImage = canvas.toDataURL('image/jpeg');
       document.getElementById('preview').src = currentImage;
       
+      // Hide modal and destroy cropper
       bootstrap.Modal.getInstance(document.getElementById('croppingModal')).hide();
       cropper.destroy();
       
@@ -232,39 +236,34 @@
       document.getElementById('imageSection').classList.remove('d-none');
     }
 
-    // Modified processImage: handle transparency and improve precision
     function processImage(canvas) {
       const ctx = canvas.getContext('2d');
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
-      
       let totalPixelAvg = 0;
-      let totalR = 0, totalG = 0, totalB = 0;
-      let totalPixelsProcessed = 0;
+      const totalPixels = data.length / 4;
       
+      // Calculate average grayscale intensity per pixel
       for (let i = 0; i < data.length; i += 4) {
-        const a = data[i + 3];
-        if (a === 0) continue; // Skip fully transparent pixels
-
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
-        totalPixelAvg += (r + g + b) / 3;
-        totalR += r;
-        totalG += g;
-        totalB += b;
-        totalPixelsProcessed++;
+        const pixelAvg = (r + g + b) / 3;
+        totalPixelAvg += pixelAvg;
       }
       
-      if (totalPixelsProcessed === 0) {
-        alert('No visible pixels detected');
-        return;
-      }
+      const grayscale = Math.round(totalPixelAvg / totalPixels);
       
-      const grayscale = Math.round(totalPixelAvg / totalPixelsProcessed);
-      const avgR = Math.round(totalR / totalPixelsProcessed);
-      const avgG = Math.round(totalG / totalPixelsProcessed);
-      const avgB = Math.round(totalB / totalPixelsProcessed);
+      // Calculate average RGB
+      let totalR = 0, totalG = 0, totalB = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        totalR += data[i];
+        totalG += data[i + 1];
+        totalB += data[i + 2];
+      }
+      const avgR = Math.round(totalR / totalPixels);
+      const avgG = Math.round(totalG / totalPixels);
+      const avgB = Math.round(totalB / totalPixels);
       
       document.getElementById('rgbResult').textContent = `${avgR}, ${avgG}, ${avgB}`;
       document.getElementById('grayscaleResult').textContent = grayscale;
