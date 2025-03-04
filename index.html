@@ -1,353 +1,333 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Analysis Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --text-primary: #f8f9fa;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--primary-gradient);
-            min-height: 100vh;
-            color: var(--text-primary);
-        }
-
-        .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-neon {
-            background: var(--primary-gradient);
-            border: none;
-            padding: 12px 30px;
-            border-radius: 12px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .btn-neon:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
-        }
-
-        .drop-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
-            padding: 2rem;
-            transition: all 0.3s;
-        }
-
-        .drop-zone.dragover {
-            border-color: #764ba2;
-            background: rgba(118, 75, 162, 0.1);
-        }
-
-        .preview-container {
-            position: relative;
-            border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.3s;
-        }
-
-        .preview-container:hover {
-            transform: scale(1.02);
-        }
-
-        .analysis-result {
-            background: var(--glass-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            backdrop-filter: blur(5px);
-        }
-
-        .color-badge {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .progress-bar {
-            height: 8px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--primary-gradient);
-            transition: width 0.5s ease;
-        }
-
-        .data-table {
-            background: var(--glass-bg);
-            border-radius: 12px;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Analysis Tool</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+    }
+    .card {
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn-custom {
+      background: #4a90e2;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 25px;
+      transition: all 0.3s;
+    }
+    .btn-custom:hover {
+      background: #357abd;
+      transform: translateY(-2px);
+    }
+    #preview {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    .result-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    table {
+      background: white;
+      margin-top: 20px;
+    }
+    .modal-dialog {
+      max-width: 100%;
+      height: 100vh;
+      margin: 0;
+    }
+    .modal-content {
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+    }
+    #croppingModal .img-container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #croppingImage {
+      max-width: 100%;
+      max-height: 80vh;
+    }
+    .modal-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      justify-content: center;
+    }
+    .btn-modal {
+      margin: 0 10px;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+    .download-btn {
+      background: #28a745;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+    .download-btn:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card p-4 fade-in">
-                    <h1 class="text-center mb-4 display-5 fw-bold">Image Analysis Pro</h1>
-                    
-                    <!-- Upload Section -->
-                    <div class="drop-zone text-center mb-4" id="dropZone">
-                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                        <p class="mb-2">Drag & drop image or</p>
-                        <div class="d-flex gap-3 justify-content-center">
-                            <button class="btn btn-neon" onclick="document.getElementById('fileInput').click()">
-                                <i class="fas fa-camera me-2"></i>Capture
-                            </button>
-                            <button class="btn btn-neon" onclick="document.getElementById('galleryInput').click()">
-                                <i class="fas fa-image me-2"></i>Browse
-                            </button>
-                        </div>
-                        <input type="file" id="fileInput" capture="environment" accept="image/*" hidden>
-                        <input type="file" id="galleryInput" accept="image/*" hidden>
-                    </div>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card p-4">
+          <h1 class="text-center mb-4">Image Analysis Tool</h1>
+          
+          <!-- Image Selection -->
+          <div class="text-center">
+            <button class="btn btn-custom mb-2" onclick="document.getElementById('fileInput').click()">
+              Open Camera
+            </button>
+            <button class="btn btn-custom mb-2" onclick="document.getElementById('galleryInput').click()">
+              Choose from Gallery
+            </button>
+            <input type="file" id="fileInput" capture="environment" accept="image/*" hidden>
+            <input type="file" id="galleryInput" accept="image/*" hidden>
+          </div>
 
-                    <!-- Image Preview -->
-                    <div id="imageSection" class="d-none fade-in">
-                        <div class="preview-container">
-                            <img id="preview" class="img-fluid w-100">
-                        </div>
-                    </div>
-
-                    <!-- Analysis Results -->
-                    <div id="inputSection" class="d-none fade-in">
-                        <div class="analysis-result mb-4">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <h6 class="mb-3"><i class="fas fa-palette me-2"></i>Color Analysis</h6>
-                                    <div class="d-flex align-items-center gap-3 mb-3">
-                                        <div class="color-badge" style="background: rgb(var(--rgb-values))"></div>
-                                        <span class="h5 mb-0" id="rgbResult"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="mb-3"><i class="fas fa-wave-square me-2"></i>Grayscale Analysis</h6>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="progress-bar w-100">
-                                            <div class="progress-fill" id="grayscaleBar"></div>
-                                        </div>
-                                        <span class="h5 mb-0" id="grayscaleResult"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Data Input -->
-                        <div class="input-group mb-4">
-                            <input type="number" id="concentration" class="form-control bg-transparent text-white" 
-                                   placeholder="Enter concentration value" style="border-color: rgba(255,255,255,0.2)">
-                            <button class="btn btn-neon" onclick="saveData()">
-                                <i class="fas fa-save me-2"></i>Save Data
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Data Table -->
-                    <div id="dataTable" class="d-none fade-in">
-                        <div class="header-section d-flex justify-content-between align-items-center mb-4">
-                            <h4><i class="fas fa-table me-2"></i>Analysis History</h4>
-                            <button class="btn btn-neon" onclick="downloadExcel()">
-                                <i class="fas fa-file-excel me-2"></i>Export Data
-                            </button>
-                        </div>
-                        <div class="data-table">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th onclick="sortTable(0)">Grayscale <i class="fas fa-sort"></i></th>
-                                            <th onclick="sortTable(1)">Concentration <i class="fas fa-sort"></i></th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tableBody"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <!-- Image Preview -->
+          <div id="imageSection" class="d-none">
+            <div class="mb-3">
+              <img id="preview" class="img-fluid">
             </div>
-        </div>
-    </div>
+          </div>
 
-    <!-- Cropping Modal -->
-    <div class="modal fade" id="croppingModal" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body p-0">
-                    <img id="croppingImage" class="img-fluid">
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button class="btn btn-neon" onclick="performCrop()">
-                        <i class="fas fa-crop me-2"></i>Apply Crop
-                    </button>
-                    <button class="btn btn-danger" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancel
-                    </button>
-                </div>
+          <!-- Data Input -->
+          <div id="inputSection" class="d-none">
+            <div class="result-box">
+              <p>Average RGB: <span id="rgbResult"></span></p>
+              <p>Grayscale Average: <span id="grayscaleResult"></span></p>
             </div>
+            <input type="number" id="concentration" class="form-control mb-3" placeholder="Enter concentration value">
+            <button class="btn btn-custom w-100" onclick="saveData()">Save Data</button>
+          </div>
+
+          <!-- Data Table -->
+          <div id="dataTable" class="mt-4 d-none">
+            <div class="header-section">
+              <h4>Saved Data</h4>
+              <button class="btn download-btn" onclick="downloadExcel()">
+                Download Excel
+              </button>
+            </div>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Grayscale</th>
+                  <th>Concentration</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast" role="alert">
-        <div class="toast-body d-flex align-items-center">
-            <i class="fas fa-info-circle me-2"></i>
-            <span id="toastMessage"></span>
+  <!-- Cropping Modal -->
+  <div class="modal fade" id="croppingModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="img-container">
+          <img id="croppingImage">
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary btn-modal" onclick="performCrop()">Crop</button>
+          <button type="button" class="btn btn-secondary btn-modal" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script>
-        // Existing JavaScript code with added features:
-        // - Drag and drop functionality
-        // - Toast notifications
-        // - Table sorting
-        // - Progress bar animation
-        // - Dynamic color indicators
-        // - Responsive improvements
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <script>
+    let cropper;
+    let currentImage;
 
-        let cropper;
-        let currentImage;
-        let sortDirection = 1;
+    // Handle image selection
+    document.getElementById('fileInput').addEventListener('change', handleImage);
+    document.getElementById('galleryInput').addEventListener('change', handleImage);
 
-        // Initialize drag and drop
-        const dropZone = document.getElementById('dropZone');
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
+    function handleImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const modal = new bootstrap.Modal(document.getElementById('croppingModal'));
+        const image = document.getElementById('croppingImage');
+        image.src = event.target.result;
+        
+        if (cropper) cropper.destroy();
+        
+        modal.show();
+        
+        // Initialize cropper after modal is shown
+        setTimeout(() => {
+          cropper = new Cropper(image, {
+            aspectRatio: 1,
+            viewMode: 0,
+            autoCropArea: 0.8,
+            guides: false,
+            center: false,
+            background: false,
+            movable: true,
+            rotatable: false,
+            scalable: false,
+            zoomable: true,
+            zoomOnTouch: true,
+            zoomOnWheel: true,
+            wheelZoomRatio: 0.1,
+            ready() {
+              cropper.setCropBoxData({
+                width: Math.min(image.naturalWidth, image.naturalHeight),
+                height: Math.min(image.naturalWidth, image.naturalHeight)
+              });
+            }
+          });
+        }, 200);
+      };
+      reader.readAsDataURL(file);
+    }
 
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            handleFile(file);
-        });
+    function performCrop() {
+      const canvas = cropper.getCroppedCanvas();
+      currentImage = canvas.toDataURL('image/jpeg');
+      document.getElementById('preview').src = currentImage;
+      
+      // Hide modal and destroy cropper
+      bootstrap.Modal.getInstance(document.getElementById('croppingModal')).hide();
+      cropper.destroy();
+      
+      processImage(canvas);
+      document.getElementById('imageSection').classList.remove('d-none');
+    }
 
-        // Modified handleImage function to support drag and drop
-        function handleFile(file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const modal = new bootstrap.Modal(document.getElementById('croppingModal'));
-                const image = document.getElementById('croppingImage');
-                image.src = event.target.result;
-                
-                if (cropper) cropper.destroy();
-                
-                modal.show();
-                
-                setTimeout(() => {
-                    cropper = new Cropper(image, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        autoCropArea: 0.8,
-                        guides: false,
-                        center: false,
-                        background: false,
-                        movable: true,
-                        rotatable: false,
-                        scalable: false,
-                        zoomable: true,
-                        zoomOnTouch: true,
-                        zoomOnWheel: true,
-                        wheelZoomRatio: 0.1
-                    });
-                }, 200);
-            };
-            reader.readAsDataURL(file);
-        }
+    // Updated processImage function
+    function processImage(canvas) {
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      let totalPixelAvg = 0;
+      const totalPixels = data.length / 4;
+      
+      // Iterate through each pixel, calculate average RGB for that pixel
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const pixelAvg = (r + g + b) / 3;
+        totalPixelAvg += pixelAvg;
+      }
+      
+      // Overall grayscale intensity is average of all pixel averages
+      const grayscale = Math.round(totalPixelAvg / totalPixels);
+      
+      // Optionally, update the average RGB display (if needed)
+      let totalR = 0, totalG = 0, totalB = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        totalR += data[i];
+        totalG += data[i + 1];
+        totalB += data[i + 2];
+      }
+      const avgR = Math.round(totalR / totalPixels);
+      const avgG = Math.round(totalG / totalPixels);
+      const avgB = Math.round(totalB / totalPixels);
+      
+      document.getElementById('rgbResult').textContent = `${avgR}, ${avgG}, ${avgB}`;
+      document.getElementById('grayscaleResult').textContent = grayscale;
+      document.getElementById('inputSection').classList.remove('d-none');
+    }
 
-        // Add remaining JavaScript functions from previous version
-        // (performCrop, processImage, saveData, downloadExcel, updateTable)
-        // with following additions:
+    function saveData() {
+      const concentration = document.getElementById('concentration').value;
+      if (!concentration) {
+        alert('Please enter concentration value');
+        return;
+      }
 
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            toastMessage.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
+      const grayscale = document.getElementById('grayscaleResult').textContent;
+      const data = JSON.parse(localStorage.getItem('imageData') || '[]');
+      data.push({ grayscale, concentration });
+      localStorage.setItem('imageData', JSON.stringify(data));
 
-        function sortTable(columnIndex) {
-            const tbody = document.getElementById('tableBody');
-            const rows = [...tbody.rows];
-            
-            rows.sort((a, b) => {
-                const aVal = a.cells[columnIndex].textContent;
-                const bVal = b.cells[columnIndex].textContent;
-                return (parseFloat(aVal) - parseFloat(bVal)) * sortDirection;
-            });
+      updateTable();
+      document.getElementById('inputSection').classList.add('d-none');
+      document.getElementById('dataTable').classList.remove('d-none');
+    }
 
-            sortDirection *= -1;
-            tbody.append(...rows);
-        }
+    function downloadExcel() {
+      const data = JSON.parse(localStorage.getItem('imageData') || '[]');
+      if (data.length === 0) {
+        alert('No data available to download');
+        return;
+      }
 
-        // Modified processImage to update progress bar
-        function processImage(canvas) {
-            // ... existing code ...
-            document.documentElement.style.setProperty('--rgb-values', `${avgR}, ${avgG}, ${avgB}`);
-            document.getElementById('grayscaleBar').style.width = `${(grayscale / 255) * 100}%`;
-        }
+      // Create CSV content
+      const csvContent = [
+        ['Grayscale', 'Concentration'],
+        ...data.map(item => [item.grayscale, item.concentration])
+      ].map(row => row.join(',')).join('\n');
 
-        // Modified saveData to show toast
-        function saveData() {
-            // ... existing code ...
-            showToast('Data saved successfully!', 'success');
-        }
-    </script>
+      // Create and trigger download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'image_analysis_data.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function updateTable() {
+      const data = JSON.parse(localStorage.getItem('imageData') || '[]');
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = data.map(item => `
+        <tr>
+          <td>${item.grayscale}</td>
+          <td>${item.concentration}</td>
+        </tr>
+      `).join('');
+      
+      // Show/hide data table section
+      const dataTable = document.getElementById('dataTable');
+      data.length > 0 ? dataTable.classList.remove('d-none') : dataTable.classList.add('d-none');
+    }
+
+    // Initial table load
+    updateTable();
+  </script>
 </body>
 </html>
