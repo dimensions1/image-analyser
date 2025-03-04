@@ -214,7 +214,6 @@
             zoomOnWheel: true,
             wheelZoomRatio: 0.1,
             ready() {
-              // Clear any preset crop box so the user can start fresh
               cropper.clear();
             }
           });
@@ -224,16 +223,26 @@
     }
 
     function performCrop() {
+      // Get cropped canvas from CropperJS
       const canvas = cropper.getCroppedCanvas();
-      // Use PNG to avoid compression artifacts
-      currentImage = canvas.toDataURL('image/png');
+      
+      // Create a new canvas to disable image smoothing
+      const newCanvas = document.createElement('canvas');
+      newCanvas.width = canvas.width;
+      newCanvas.height = canvas.height;
+      const ctx = newCanvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(canvas, 0, 0);
+      
+      // Use PNG for lossless image data
+      currentImage = newCanvas.toDataURL('image/png');
       document.getElementById('preview').src = currentImage;
       
-      // Hide modal and destroy cropper
+      // Hide modal and destroy cropper instance
       bootstrap.Modal.getInstance(document.getElementById('croppingModal')).hide();
       cropper.destroy();
       
-      processImage(canvas);
+      processImage(newCanvas);
       document.getElementById('imageSection').classList.remove('d-none');
     }
 
@@ -255,7 +264,7 @@
       
       const grayscale = Math.round(totalPixelAvg / totalPixels);
       
-      // Calculate average RGB
+      // Calculate average RGB values
       let totalR = 0, totalG = 0, totalB = 0;
       for (let i = 0; i < data.length; i += 4) {
         totalR += data[i];
@@ -295,13 +304,11 @@
         return;
       }
 
-      // Create CSV content
       const csvContent = [
         ['Grayscale', 'Concentration'],
         ...data.map(item => [item.grayscale, item.concentration])
       ].map(row => row.join(',')).join('\n');
 
-      // Create and trigger download
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
