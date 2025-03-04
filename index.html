@@ -225,7 +225,8 @@
 
     function performCrop() {
       const canvas = cropper.getCroppedCanvas();
-      currentImage = canvas.toDataURL('image/jpeg');
+      // Use PNG to avoid compression artifacts
+      currentImage = canvas.toDataURL('image/png');
       document.getElementById('preview').src = currentImage;
       
       // Hide modal and destroy cropper
