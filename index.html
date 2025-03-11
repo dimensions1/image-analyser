@@ -139,9 +139,14 @@
           <div id="dataTable" class="mt-4 d-none">
             <div class="header-section">
               <h4>Saved Data</h4>
-              <button class="btn download-btn" onclick="downloadExcel()">
-                Download Excel
-              </button>
+              <div>
+                <button class="btn download-btn" onclick="downloadExcel()">
+                  Download Excel
+                </button>
+                <button class="btn btn-danger ms-2" onclick="restartApp()">
+                  Restart
+                </button>
+              </div>
             </div>
             <table class="table table-striped">
               <thead>
@@ -179,14 +184,13 @@
     let cropper;
     let currentImage;
 
-    // Handle image selection
+    // Handle image selection and ensure input resets after each selection.
     document.getElementById('fileInput').addEventListener('change', handleImage);
     document.getElementById('galleryInput').addEventListener('change', handleImage);
 
     function handleImage(e) {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = (event) => {
         const modal = new bootstrap.Modal(document.getElementById('croppingModal'));
@@ -194,7 +198,6 @@
         image.src = event.target.result;
         
         if (cropper) cropper.destroy();
-        
         modal.show();
         
         // Initialize cropper after modal is shown
@@ -214,13 +217,14 @@
             zoomOnWheel: true,
             wheelZoomRatio: 0.1,
             ready() {
-              // Clear any preset crop box so the user can start fresh
               cropper.clear();
             }
           });
         }, 200);
       };
       reader.readAsDataURL(file);
+      // Reset file input so the change event fires next time even with same file
+      e.target.value = '';
     }
 
     function performCrop() {
@@ -248,8 +252,7 @@
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
-        const pixelAvg = (r + g + b) / 3;
-        totalPixelAvg += pixelAvg;
+        totalPixelAvg += (r + g + b) / 3;
       }
       
       const grayscale = Math.round(totalPixelAvg / totalPixels);
@@ -276,12 +279,10 @@
         alert('Please enter concentration value');
         return;
       }
-
       const grayscale = document.getElementById('grayscaleResult').textContent;
       const data = JSON.parse(localStorage.getItem('imageData') || '[]');
       data.push({ grayscale, concentration });
       localStorage.setItem('imageData', JSON.stringify(data));
-
       updateTable();
       document.getElementById('inputSection').classList.add('d-none');
       document.getElementById('dataTable').classList.remove('d-none');
@@ -293,18 +294,14 @@
         alert('No data available to download');
         return;
       }
-
-      // Create CSV content
       const csvContent = [
         ['Grayscale', 'Concentration'],
         ...data.map(item => [item.grayscale, item.concentration])
       ].map(row => row.join(',')).join('\n');
 
-      // Create and trigger download
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
-      
       link.setAttribute('href', url);
       link.setAttribute('download', 'image_analysis_data.csv');
       link.style.visibility = 'hidden';
@@ -322,9 +319,19 @@
           <td>${item.concentration}</td>
         </tr>
       `).join('');
-      
       const dataTable = document.getElementById('dataTable');
       data.length > 0 ? dataTable.classList.remove('d-none') : dataTable.classList.add('d-none');
+    }
+
+    // Restart function: clears all saved data and resets the UI.
+    function restartApp() {
+      localStorage.removeItem('imageData');
+      document.getElementById('preview').src = "";
+      document.getElementById('concentration').value = "";
+      document.getElementById('inputSection').classList.add('d-none');
+      document.getElementById('imageSection').classList.add('d-none');
+      document.getElementById('dataTable').classList.add('d-none');
+      updateTable();
     }
 
     // Initial table load
